@@ -1,6 +1,5 @@
 /*
   M5CameraでGoogle DriveにJPEGファイルをアップロードするテスト
-  とりあえずやっつけなのであとで整理したいなと思いまつ
 */
 
 #include "esp_camera.h"
@@ -130,33 +129,31 @@ String postPic(String url, String token, uint8_t* addr, int picLen, int port)
   Serial.println(charHost);
 
   String boundary = "------WebKitFormBoundary6n1BXCrYS8DFaBeb\r\n";
-  String data2="\r\n";
-  data2 += boundary;
-  data2 += "Content-Disposition: form-data; name=\"metadata\"; filename=\"blob\"\r\n";
-  data2 += "Content-Type: application/json\r\n";
-  data2 += "\r\n";
-  data2 += "{ \"title\": \"esp32.jpg\", \"mimeType\": \"image/jpeg\", \"description\": \"Uploaded From ESP32\" }\r\n";
-  data2 += boundary;
-  data2 += "Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n";
-  data2 += "Content-Type: image/jpeg\r\n";
-  data2 += "\r\n";
+  String body="\r\n";
+  body += boundary;
+  body += "Content-Disposition: form-data; name=\"metadata\"; filename=\"blob\"\r\n";
+  body += "Content-Type: application/json\r\n";
+  body += "\r\n";
+  body += "{ \"title\": \"esp32.jpg\", \"mimeType\": \"image/jpeg\", \"description\": \"Uploaded From ESP32\" }\r\n";
+  body += boundary;
+  body += "Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n";
+  body += "Content-Type: image/jpeg\r\n";
+  body += "\r\n";
 
-  String data =
+  String header =
   "POST /upload/drive/v2/files?uploadType=multipart HTTP/1.1\r\n"
   "HOST: www.googleapis.com\r\n"
   "authorization: Bearer ";
-  data += token;
-  data += "\r\n";
-  data += "content-type: multipart/form-data; boundary=----WebKitFormBoundary6n1BXCrYS8DFaBeb\r\n";
-  data += "content-length: ";
-  int len = data2.length();
+  header += token;
+  header += "\r\n";
+  header += "content-type: multipart/form-data; boundary=----WebKitFormBoundary6n1BXCrYS8DFaBeb\r\n";
+  header += "content-length: ";
+  int len = body.length();
   len += picLen;
   len += boundary.length();
   len += ((String)"\r\n").length();
-  data += (String)len;
-  data += "\r\n";
-  data += data2;
-    
+  header += (String)len;
+  header += "\r\n";
   while(!client.connect(charHost, port))
   {
     delay(10);
@@ -164,8 +161,8 @@ String postPic(String url, String token, uint8_t* addr, int picLen, int port)
   }
   if (client.connected())
   {
-    client.print(data);
-
+    client.print(header);
+    client.print(body);
     int sizeDivT = ((int)(picLen / 1000));
     int remSize = ((int)picLen - (int)(picLen / 1000)*1000);
 
