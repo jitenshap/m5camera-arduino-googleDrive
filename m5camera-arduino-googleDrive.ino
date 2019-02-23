@@ -1,5 +1,6 @@
 /*
   M5CameraでGoogle DriveにJPEGファイルをアップロードするテスト
+  とりあえずやっつけなのであとで整理したいなと思いまつ
 */
 
 #include "esp_camera.h"
